@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.ssafy.trip.model.mapper.UserMapper">
+
+	<select id="login" parameterType="user" resultType="user">
+		select id, password, name 
+		from user 
+		where id=#{id} and password=#{password}
+	</select>
+	
+	<select id="SearchbyID" parameterType="string" resultType="user">
+		select id, password, name 
+		from user 
+		where id = #{id}
+	</select>
+	
+	<select id="profile" parameterType="string" resultType="user">
+		select id, password, name 
+		from user 
+		where name=#{name}
+	</select>
+	
+	<!-- 등록 -->
+	<insert id="regist" parameterType="user">
+		insert into user (id, password, name) values (#{id}, #{password}, #{name})
+	</insert>
+	
+	<!-- 삭제 -->
+	<delete id="delete" parameterType="string">
+		delete from User where id=#{id}
+	</delete>
+	
+	<!-- 수정 -->
+	<update id="update" parameterType="user">
+		update user set password=#{password}, name=#{name} where id=#{id}
+	</update>
+
+
+</mapper>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.ssafy.trip.model.mapper.AttractionMapper">
+	
+	<resultMap type="AttractionDto" id="attraction">
+		<result column="sido_code" property="sidoCode"/>
+		<result column="content_type_id" property="contentType"/>
+		<result column="title" property="title"/>
+		<result column="addr1" property="addr"/>
+		<result column="first_image" property="img"/>
+		<result column="latitude" property="latitude"/>
+		<result column="longitude" property="longitude"/>
+		<result column="overview" property="description"/>
+	</resultMap>
+
+
+	<resultMap type="SidoDto" id="sido">
+		<result column="sido_code" property="code"/>
+		<result column="sido_name" property="name"/>
+	</resultMap>
+
+	<!-- 전체 조회 -->
+	<select id="selectAllSido" resultMap="sido">
+		select sido_code, sido_name 
+		from sido
+	</select>
+		
+	<!-- 전체 조회 -->
+	<select id="selectAttraction" resultMap="attraction" parameterType="hashMap">
+		select ai.sido_code, ai.content_type_id, ai.title, ai.addr1, ai.first_image, ai.latitude, ai.longitude, ad.overview 
+		from attraction_info ai, attraction_description ad 
+		where ai.content_id=ad.content_id
+		<if test="sidoCode != 0">
+			and ai.sido_code = #{sidoCode}	
+		</if>
+		<if test="contentType != 0">
+			and ai.content_type_id = #{contentType}
+		</if>
+		<if test="!search.isEmpty()">
+			and ai.title like concat('%', #{search}, '%')
+		</if>
+		<if test="sidoCode == 0 and contentType == 0 and search.isEmpty()">
+			limit 20
+		</if>
+	</select>
+	
+	
+</mapper>

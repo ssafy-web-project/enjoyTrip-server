@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.ssafy.trip.model.mapper.BoardMapper">
+
+	<resultMap type="boardDto" id="board">
+		<result column="article_no" property="articleNo"/>
+		<result column="user_id" property="userId"/>
+		<result column="subject" property="subject"/>
+		<result column="content" property="content"/>
+		<result column="hit" property="hit"/>
+		<result column="register_time" property="registerTime"/>
+	</resultMap>
+	
+	<!-- 등록 -->
+	<insert id="writeArticle" parameterType="BoardDto">
+		insert into board (user_id, subject, content)
+		values (#{userId}, #{subject}, #{content})
+	</insert>
+	
+	<!-- 전체 조회 -->
+	<select id="listArticle" resultMap="board" parameterType="hashMap">
+		select article_no, user_id, subject, content, hit, register_time
+		from board
+ 		<if test="!key.isEmpty() and !word.isEmpty()">
+			<if test='key.equals("subject")'>
+				where subject like concat('%', #{word}, '%')
+			</if>
+			<if test='!key".equals("subject")'>
+				where #{key} = #{word}
+			</if>
+		</if> 
+		order by article_no desc
+		limit #{start}, #{listsize}
+	</select>
+	
+	<!-- 전체 조회 -->
+	<select id="getTotalArticleCount" resultType="int" parameterType="hashMap">
+		select count(article_no)
+		from board
+ 		<if test="!key.isEmpty() and !word.isEmpty()">
+			<if test='key.equals("subject")'>
+				where subject like concat('%', #{word}, '%')
+			</if>
+			<if test='!key".equals("subject")'>
+				where #{key} = #{word}
+			</if>
+		</if>
+	</select>
+	
+	<!-- 상세 조회 -->
+	<select id="getArticle" resultMap="board" parameterType="int">
+		select article_no, user_id, subject, content, hit, register_time
+		from board
+		where article_no = #{articleNo}
+	</select>
+	
+	<!-- 수정 -->
+	<update id="updateHit" parameterType="int">
+		update board set hit = hit + 1 where article_no = #{articleNo}
+	</update>
+	
+	<!-- 수정 -->
+	<update id="modifyArticle" parameterType="boardDto">
+		update board set subject = #{subject}, content = #{content} where article_no = #{articleNo}
+	</update>
+	
+	<!-- 삭제(isbn) -->
+	<delete id="deleteArticle" parameterType="int">
+		delete from board
+		where article_no = #{articleNo}
+	</delete>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</mapper>

@@ -1,4 +1,4 @@
-package util;
+package com.ssafy.trip.util;
 
 public class PageNavigation {
 	

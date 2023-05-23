@@ -2,87 +2,201 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
     
+
 <mapper namespace="com.ssafy.trip.model.mapper.BoardMapper">
 
-	<resultMap type="boardDto" id="board">
-		<result column="article_no" property="articleNo"/>
-		<result column="user_id" property="userId"/>
-		<result column="subject" property="subject"/>
-		<result column="content" property="content"/>
-		<result column="hit" property="hit"/>
-		<result column="register_time" property="registerTime"/>
+    <resultMap type="boardDto" id="board">
+        <result column="article_no" property="articleNo"/>
+        <result column="user_id" property="userId"/>
+        <result column="subject" property="subject"/>
+        <result column="content" property="content"/>
+        <result column="hit" property="hit"/>
+        <result column="register_time" property="registerTime"/>
+    </resultMap>
+    
+    <resultMap type="NoticeDto" id="noticeList">
+        <result column="notice_id" property="noticeId"/>
+        <result column="user_id" property="userId"/>
+        <result column="name" property="name"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="register_time" property="registerTime"/>
+        <result column="hit" property="hit"/>
+    </resultMap>
+ 
+    <resultMap type="Schedule" id="getTopSchedule">
+        <result column="schedule_id" property="scheduleId"/>
+        <result column="id" property="userId"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="name" property="name"/>
+        <result column="register_time" property="registerTime"/>
+        <result column="hit" property="hit"/>
+    </resultMap>
+    
+    <resultMap type="ScheduleSpot" id="getTopScheduleSpot">
+        <result column="content_id" property="contentId"/>
+        <result column="title" property="title"/>
+        <result column="first_image" property="firstImage"/>
+    </resultMap>
+    
+   	<resultMap type="ScheduleDetail" id="boardList">
+		<result column="schedule_id" property="scheduleId"></result>
+		<result column="title" property="title"></result>
+		<result column="hit" property="hit"></result>
+		<result column="register_time" property="registerTime"></result>
+		<result column="email" property="email"></result>
+		<result column="name" property="name"></result>
+		<result column="user_id" property="userId"></result>
 	</resultMap>
 	
-	<!-- 등록 -->
-	<insert id="writeArticle" parameterType="BoardDto">
-		insert into board (user_id, subject, content)
-		values (#{userId}, #{subject}, #{content})
+   	<resultMap type="ScheduleDetailSpotInfo" id="plan">
+		<result column="content_id" property="contentId"></result>
+		<result column="first_image" property="firstImage"></result>
+		<result column="title" property="title"></result>
+		<result column="memo" property="memo"></result>
+		<result column="content_type_id" property="contentTypeId"></result>
+	</resultMap>
+
+	<resultMap type="ScheduleDetail" id="article" extends="boardList">
+		<collection property="planInfos" column="schedule_id"
+			javaType="list" ofType="ScheduleDetailSpotInfo" select="planInfoList"></collection>
+	</resultMap>
+    
+
+     <insert id="noticeInsert" parameterType="com.ssafy.trip.dto.notice.NoticeDto" useGeneratedKeys="true" keyProperty="noticeId">
+        INSERT INTO notice ( USER_ID, TITLE, CONTENT, REGISTER_TIME, HIT)
+                    VALUES ( #{userId}, #{title}, #{content}, now(), 0)
+    </insert>
+    
+    <select id="noticeList" parameterType="map" resultMap="noticeList">
+        SELECT n.NOTICE_ID, n.user_id,u.NAME,
+                 n.TITLE, n.CONTENT, n.REGISTER_TIME, n.HIT
+          FROM notice n, user u
+         WHERE n.USER_ID = u.ID
+         ORDER BY n.NOTICE_ID DESC
+         LIMIT #{limit} OFFSET #{offset}
+    </select>
+    
+     <select id="noticeLatestList" parameterType="map" resultType="com.ssafy.trip.dto.notice.NoticeDto">
+        SELECT NOTICE_ID, TITLE
+        FROM notice
+        ORDER BY NOTICE_ID DESC
+        LIMIT 5
+    </select>
+    
+    <select id="noticeListTotalCount" resultType="int">
+        SELECT COUNT(*) FROM notice
+    </select> 
+
+    <select id="noticeListSearchWord" parameterType="map" resultMap="noticeList">
+        SELECT n.notice_id, u.name,
+                 n.title, n.content, n.register_time, n.hit
+          FROM notice n, user u
+          WHERE n.user_id = u.id
+            AND n.TITLE LIKE CONCAT('%', #{searchWord} ,'%')
+          ORDER BY n.NOTICE_ID DESC
+          LIMIT #{limit} OFFSET #{offset}
+    </select>
+    
+    <select id="noticeListSearchWordTotalCount" parameterType="string" resultType="int">
+        SELECT COUNT()
+          FROM notice
+         WHERE TITLE LIKE CONCAT('%', #{searchWord} ,'%')
+    </select>
+    
+    <update id="noticeUpdate" parameterType="com.ssafy.trip.dto.notice.NoticeDto">
+        UPDATE notice
+           SET TITLE = #{title},
+           CONTENT   = #{content}
+         WHERE NOTICE_ID = #{noticeId}
+    </update>
+    
+     <delete id="noticeDelete" parameterType="int">
+        DELETE FROM notice WHERE NOTICE_ID = #{noticeId}
+    </delete>
+    
+    <delete id="noticeReadCountDelete" parameterType="int">
+        DELETE FROM notice_user_read WHERE NOTICE_ID = #{noticeId}
+    </delete>
+    
+    <select id="noticeDetail" parameterType="int" resultMap="noticeList">
+        SELECT n.NOTICE_ID, n.user_id, u.name,
+               n.TITLE, n.CONTENT, n.register_time, n.hit
+          FROM notice n, user u
+         WHERE n.NOTICE_ID = #{noticeId}
+           AND n.user_id = u.id
+    </select>
+
+    <select id="noticeUserReadCount" parameterType="map" resultType="int">
+        SELECT count(*) FROM notice_user_read WHERE NOTICE_ID = #{noticeId} and user_id = #{userId}
+    </select>
+
+    <insert id="noticeUserReadInsert" parameterType="map">
+        INSERT INTO notice_user_read ( notice_id, user_id )
+                    VALUES ( #{noticeId}, #{userId} )
+    </insert>
+    
+    <update id="noticeReadCountUpdate" parameterType="int">
+        UPDATE notice set hit = hit + 1
+         WHERE NOTICE_ID = #{noticeId}
+    </update>
+    
+   	<insert id="writeBoard" parameterType="map">
+		insert into schedule (user_id, title, content, register_time, hit)
+		values (#{userId}, #{title}, #{content}, now(), 0)
 	</insert>
 	
-	<!-- 전체 조회 -->
-	<select id="listArticle" resultMap="board" parameterType="hashMap">
-		select article_no, user_id, subject, content, hit, register_time
-		from board
- 		<if test="!key.isEmpty() and !word.isEmpty()">
-			<if test='key.equals("subject")'>
-				where subject like concat('%', #{word}, '%')
-			</if>
-			<if test='!key".equals("subject")'>
-				where #{key} = #{word}
-			</if>
-		</if> 
-		order by article_no desc
-		limit #{start}, #{listsize}
+	<insert id="writeScheduleSpot" parameterType="map">
+		insert into schedulespot (schedule_id, content_id, memo)
+		values (#{scheduleId}, #{contentId}, #{memo})
+	</insert>
+	
+	<select id="getLastBoardid" parameterType="String" resultType="int">
+		select schedule_id 
+		from schedule
+		where user_id = #{userId}
+		order by schedule_id desc 
+		limit 1
 	</select>
 	
-	<!-- 전체 조회 -->
-	<select id="getTotalArticleCount" resultType="int" parameterType="hashMap">
-		select count(article_no)
-		from board
- 		<if test="!key.isEmpty() and !word.isEmpty()">
-			<if test='key.equals("subject")'>
-				where subject like concat('%', #{word}, '%')
-			</if>
-			<if test='!key".equals("subject")'>
-				where #{key} = #{word}
-			</if>
-		</if>
+	<select id="getTopBoards" resultMap="getTopSchedule">
+		select s.schedule_id, u.id, s.title, s.content, u.name, s.register_time, s.hit
+		from schedule as s join user as u 
+		on s.user_id = u.id
+		order by s.hit desc
+		limit 6;
 	</select>
 	
-	<!-- 상세 조회 -->
-	<select id="getArticle" resultMap="board" parameterType="int">
-		select article_no, user_id, subject, content, hit, register_time
-		from board
-		where article_no = #{articleNo}
+	<select id="getTopBoardSpots" parameterType="int" resultMap="getTopScheduleSpot">
+		select ss.content_id, s.title, s.first_image
+		from schedulespot as ss join spot as s
+		on ss.content_id = s.content_id
+		where ss.schedule_id = #{scheduleId};
+	</select>
+    
+  	<select id="view" parameterType="string" resultMap="article">
+		select
+		s.schedule_id, s.title, s.hit, s.register_time, u.email,
+		u.name, s.user_id
+		from user u join schedule s
+		on u.id = s.user_id
+		where s.schedule_id = #{scheduleId}
 	</select>
 	
-	<!-- 수정 -->
-	<update id="updateHit" parameterType="int">
-		update board set hit = hit + 1 where article_no = #{articleNo}
+	<select id="planInfoList" resultMap="plan">
+		select sp.first_image, sp.title, ss.memo, sp.content_type_id, sp.content_id
+		from spot sp join (select content_id, memo
+		from schedulespot
+		where schedule_id = #{scheduleId}) as ss
+		on sp.content_id = ss.content_id
+	</select>
+	
+	<update id="updateHit" parameterType="string">
+		update schedule
+		set hit =
+		hit + 1
+		where schedule_id = #{scheduleId}
 	</update>
-	
-	<!-- 수정 -->
-	<update id="modifyArticle" parameterType="boardDto">
-		update board set subject = #{subject}, content = #{content} where article_no = #{articleNo}
-	</update>
-	
-	<!-- 삭제(isbn) -->
-	<delete id="deleteArticle" parameterType="int">
-		delete from board
-		where article_no = #{articleNo}
-	</delete>
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 </mapper>

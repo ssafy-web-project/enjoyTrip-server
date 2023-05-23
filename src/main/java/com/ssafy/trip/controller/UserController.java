@@ -2,6 +2,8 @@ package com.ssafy.trip.controller;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
@@ -11,6 +13,7 @@ import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -22,10 +25,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.trip.dto.User;
+import com.ssafy.trip.dto.friend.FriendFollowingResponseDto;
+import com.ssafy.trip.dto.user.UserIdCheckDto;
+import com.ssafy.trip.dto.user.UserSearchResponseDto;
 import com.ssafy.trip.model.service.UserService;
 
 
 @RestController
+@CrossOrigin
 public class UserController extends HttpServlet {
 
 	
@@ -76,6 +83,15 @@ public class UserController extends HttpServlet {
 		return ResponseEntity.ok().build();	
 	}
 	
+	@GetMapping("/users/idcheck/{id}")
+	public ResponseEntity<?> checkId(@PathVariable String id) throws SQLException {
+		int ret = userService.checkId(id);
+		
+		System.out.println(ret);
+		
+		return ResponseEntity.ok().body(ret);	
+	}
+	
 	@GetMapping("/users/{id}")
 	public ResponseEntity<?> search(@PathVariable String id) throws SQLException {
 		User ret = userService.SearchbyID(id);
@@ -83,11 +99,33 @@ public class UserController extends HttpServlet {
 		return ResponseEntity.ok().body(ret);	
 	}
 	
-	@PatchMapping("/users")
-	public ResponseEntity<?> search(@RequestBody User user) throws SQLException {
-		userService.update(user);
+//	@PatchMapping("/users")
+//	public ResponseEntity<?> search(@RequestBody User user) throws SQLException {
+//		userService.update(user);
+//		
+//		return ResponseEntity.ok().build();	
+//	}
+//	
+	@PatchMapping("/users/info")
+	public ResponseEntity<?> update(@RequestBody User user) throws SQLException {
+		int ret = userService.updateUser(user);
 		
-		return ResponseEntity.ok().build();	
+		if(ret == 1) {
+			return ResponseEntity.ok().body(ret);	
+		} else {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+	
+	@PatchMapping("/users/password")
+	public ResponseEntity<?> updatePassword(@RequestBody User user) throws SQLException {
+		int ret = userService.updatePassword(user);
+		
+		if(ret == 1) {
+			return ResponseEntity.ok().body(ret);	
+		} else {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 	
 	@DeleteMapping("/users/{id}")
@@ -97,4 +135,16 @@ public class UserController extends HttpServlet {
 		return ResponseEntity.ok().build();	
 	}
 	
+	// 친구 찾기
+	@GetMapping("/user")
+	public ResponseEntity<?> friendSearch(@RequestParam Map<String, String> map) throws SQLException {
+
+		List<UserSearchResponseDto> ret = userService.friendSearch(map);
+		
+		if (ret != null) {
+			return ResponseEntity.ok().body(ret);	
+		} else {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 }

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+   
+<mapper namespace="com.ssafy.trip.model.mapper.CommentMapper">
+
+    <resultMap type="CommentResultDto" id="getCommentList">
+        <result column="comment_id" property="commentId"/>
+        <result column="content_id" property="contentId"/>
+        <result column="user_id" property="userId"/>
+        <result column="content" property="content"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="like_user_count" property="likeUserCount"/>
+        <result column="hate_user_count" property="hateUserCount"/>
+    </resultMap>
+    
+    <select id="commentList" parameterType="int" resultMap="getCommentList">
+        select comment_id, content_id, user_id, content, created_at, like_user_count, hate_user_count
+        from comment
+        where content_id = #{contentId}
+        order by like_user_count desc
+    </select>
+    
+	<insert id="commentInsert" parameterType="com.ssafy.trip.dto.comment.CommentRequestDto">
+		insert into comment (content_id, user_id, content) 
+		values (#{contentId}, #{userId}, #{content})
+	</insert>
+	
+	<update id="updateLikeCount" parameterType="int">
+		update comment
+		set like_user_count = like_user_count + 1
+		where comment_id = #{commentId}
+	</update>
+	
+    <delete id="commentDelete" parameterType="int">
+        DELETE FROM comment WHERE comment_id = #{commentId}
+    </delete>
+</mapper>

@@ -1,29 +1,19 @@
 package com.ssafy.trip.dto;
 
 public class SidoDto {
-	private int code;
-	private String name;
+	private int sidoId;
+	private String sidoName;
 	
-	public SidoDto() {}
-	public SidoDto(int code, String name) {
-		super();
-		this.code = code;
-		this.name = name;
+	public int getSidoId() {
+		return sidoId;
 	}
-	public int getCode() {
-		return code;
+	public void setSidoId(int sidoId) {
+		this.sidoId = sidoId;
 	}
-	public void setCode(int code) {
-		this.code = code;
+	public String getSidoName() {
+		return sidoName;
 	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	@Override
-	public String toString() {
-		return "SidoDto [code=" + code + ", name=" + name + "]";
+	public void setSidoName(String sidoName) {
+		this.sidoName = sidoName;
 	}
 }

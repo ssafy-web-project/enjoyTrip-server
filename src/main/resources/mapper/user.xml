@@ -5,31 +5,31 @@
 <mapper namespace="com.ssafy.trip.model.mapper.UserMapper">
 
 	<select id="login" parameterType="user" resultType="user">
-		select id, password, name 
+		select id, password, name, email
 		from user 
 		where id=#{id} and password=#{password}
 	</select>
 	
 	<select id="SearchbyID" parameterType="string" resultType="user">
-		select id, password, name 
+		select id, password, name, email
 		from user 
 		where id = #{id}
 	</select>
 	
 	<select id="profile" parameterType="string" resultType="user">
-		select id, password, name 
+		select id, password, name, email
 		from user 
 		where name=#{name}
 	</select>
 	
 	<!-- 등록 -->
 	<insert id="regist" parameterType="user">
-		insert into user (id, password, name) values (#{id}, #{password}, #{name})
+		insert into user (id, password, name, email) values (#{id}, #{password}, #{name}, #{email})
 	</insert>
 	
 	<!-- 삭제 -->
 	<delete id="delete" parameterType="string">
-		delete from User where id=#{id}
+		delete from user where id=#{id}
 	</delete>
 	
 	<!-- 수정 -->
@@ -37,5 +37,26 @@
 		update user set password=#{password}, name=#{name} where id=#{id}
 	</update>
 
-
+	<!-- 수정 -->
+	<update id="updateUser" parameterType="user">
+		update user set email=#{email}, name=#{name} where id=#{id}
+	</update>
+	
+	<!-- 수정 -->
+	<update id="updatePassword" parameterType="user">
+		update user set password=#{password} where id=#{id}
+	</update>
+	<!-- id 중복 체크  -->
+	<select id="checkId" parameterType="string" resultType="int">
+		select count(id) 
+		from user 
+        where id= #{id}
+	</select>
+	
+		<!-- 친구 찾기 -->
+	<select id="friendSearch" parameterType="hashMap" resultType="com.ssafy.trip.dto.user.UserSearchResponseDto">
+		select name, id, email
+		from user u
+		where id like concat(#{searchWord}, '%')
+	</select>
 </mapper>

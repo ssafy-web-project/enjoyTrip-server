@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.ssafy.trip.model.mapper.FriendMapper">
+
+	<resultMap type="FriendFollowerResponseDto" id="FriendFollower">
+		<result column="from_id" property="fromId"/>
+		<result column="name" property="name"/>
+		<result column="id" property="id"/>
+		<result column="email" property="email"/>
+	</resultMap>
+	
+	<resultMap type="FriendFollowingResponseDto" id="FriendFollowing">
+		<result column="to_id" property="toId"/>
+		<result column="name" property="name"/>
+		<result column="id" property="id"/>
+		<result column="email" property="email"/>
+	</resultMap>
+	
+	<!-- 팔로우 : 내가 친구 요청(추가) -->
+	<insert id="friendFollow" parameterType="com.ssafy.trip.dto.friend.FriendRequestDto">
+		insert into friend (from_id, to_id) 
+		values ( #{fromId}, #{toId})
+	</insert>
+	
+	<!-- 언팔로우 : 친구 해제  -->
+	<delete id="friendUnFollow" parameterType="com.ssafy.trip.dto.friend.FriendRequestDto">
+		delete from friend
+		where from_id = #{fromId}
+		and to_id = #{toId}
+	</delete>
+	
+	<!-- 팔로워 : 나를 친구로 등록한 사람들 조회 -->
+	<select id="friendFollower" parameterType="string" resultMap="FriendFollower">
+		SELECT from_id, name, u.id, email
+		FROM user u, friend f
+		WHERE f.from_id=u.id AND f.to_id=#{toId};
+	</select>
+	
+	<!-- 팔로워 : 나를 친구로 등록한 사람들 수 -->
+	<select id="friendFollowerCount" parameterType="String" resultType="int">
+		select count(from_id)
+		from friend
+		where to_id = #{toId};
+	</select>
+	
+	<!-- 팔로잉 : 내가 친구로 등록한 사람들 조회 -->
+	<select id="friendFollowing" parameterType="string" resultMap="FriendFollowing">
+		SELECT to_id, name, u.id, email
+		FROM user u, friend f
+		WHERE f.from_id=#{fromId} AND f.to_id=u.id;
+	</select>
+	
+	<!-- 팔로잉 : 내가 친구로 등록한 사람들 수 -->
+	<select id="friendFollowingCount" parameterType="String" resultType="int">
+		select count(to_id)
+		from friend
+		where from_id = #{fromId};
+	</select>
+</mapper>

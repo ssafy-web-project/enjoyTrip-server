@@ -5,7 +5,14 @@ public class FriendFollowerResponseDto {
 	private String name;
 	private String id;
 	private String email;
+	private String userProfileImage;
 	
+	public String getUserProfileImage() {
+		return userProfileImage;
+	}
+	public void setUserProfileImage(String userProfileImage) {
+		this.userProfileImage = userProfileImage;
+	}
 	public String getFromId() {
 		return fromId;
 	}
@@ -30,5 +37,4 @@ public class FriendFollowerResponseDto {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	
 }

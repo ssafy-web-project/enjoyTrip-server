@@ -5,6 +5,7 @@ public class FriendFollowingResponseDto {
 	private String name;
 	private String id;
 	private String email;
+	private String userProfileImage;
 	
 	public String getToId() {
 		return toId;
@@ -17,6 +18,12 @@ public class FriendFollowingResponseDto {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+	public String getUserProfileImage() {
+		return userProfileImage;
+	}
+	public void setUserProfileImage(String userProfileImage) {
+		this.userProfileImage = userProfileImage;
 	}
 	public String getId() {
 		return id;

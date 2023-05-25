@@ -5,9 +5,17 @@ public class User {
 	private String password;
 	private String name;
 	private String email;
+	private String userProfileImage;
 	
 	public User() {}
 	
+	public String getUserProfileImage() {
+		return userProfileImage;
+	}
+	
+	public void setUserProfileImage(String userProfileImage) {
+		this.userProfileImage = userProfileImage;
+	}
 	public User(String id, String password, String name, String email) {
 		super();
 		this.id = id;

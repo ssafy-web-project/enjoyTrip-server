@@ -2,11 +2,13 @@ package com.ssafy.trip.controller;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
@@ -23,9 +25,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.ssafy.trip.dto.User;
 import com.ssafy.trip.dto.friend.FriendFollowingResponseDto;
+import com.ssafy.trip.dto.user.UserDto;
+import com.ssafy.trip.dto.user.UserFindPasswordRequestDto;
 import com.ssafy.trip.dto.user.UserIdCheckDto;
 import com.ssafy.trip.dto.user.UserSearchResponseDto;
 import com.ssafy.trip.model.service.UserService;
@@ -95,8 +101,13 @@ public class UserController extends HttpServlet {
 	@GetMapping("/users/{id}")
 	public ResponseEntity<?> search(@PathVariable String id) throws SQLException {
 		User ret = userService.SearchbyID(id);
-					
-		return ResponseEntity.ok().body(ret);	
+		
+		if(ret != null) {
+			return ResponseEntity.ok().body(ret);
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 	
 //	@PatchMapping("/users")
@@ -141,6 +152,39 @@ public class UserController extends HttpServlet {
 
 		List<UserSearchResponseDto> ret = userService.friendSearch(map);
 		
+		if (ret != null) {
+			return ResponseEntity.ok().body(ret);	
+		} else {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+	
+	@PostMapping(value = "/user/password")
+	public ResponseEntity<?> findPassword(@RequestBody UserFindPasswordRequestDto userDto) {
+		int ret = userService.findPassword(userDto);
+
+		if (ret == 1) {
+			return ResponseEntity.ok().body(ret);	
+		} else {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+	
+	// 프로필 이미지 등록
+	@PostMapping(value = "/user/profileImg")
+	public ResponseEntity<?> userProfileImageUpload(MultipartHttpServletRequest request) throws IllegalStateException, IOException {
+		
+
+        MultipartFile part = request.getFile("userProfileImage");
+        String userId = request.getParameter("userId");
+        String fileName = part.getOriginalFilename();
+		
+        System.out.println(userId);
+        System.out.println(part);
+        System.out.println(fileName);
+        
+		String ret = userService.userFileInsert(request);
+	    
 		if (ret != null) {
 			return ResponseEntity.ok().body(ret);	
 		} else {

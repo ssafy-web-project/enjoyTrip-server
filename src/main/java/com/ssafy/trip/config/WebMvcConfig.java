@@ -7,6 +7,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.ssafy.trip.interceptor.LoginInterceptor;
@@ -27,6 +28,7 @@ public class WebMvcConfig implements WebMvcConfigurer{
 			.addPathPatterns("/**/attractions/**")
 			.excludePathPatterns("/**/users/**")
 			.excludePathPatterns("/**/auth/**");
+			
 //			.addPathPatterns("/**/users/**");
 		//해당 요청을 제외한 나머지 요청들 인터셉트
 //		registry.addInterceptor(interceptor).excludePathPatterns("/**/auth/**");
@@ -38,5 +40,7 @@ public class WebMvcConfig implements WebMvcConfigurer{
                 .allowedMethods("*")
                 .allowedHeaders("*");
     }
+
+    
 }
 

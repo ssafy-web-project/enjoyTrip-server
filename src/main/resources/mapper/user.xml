@@ -4,15 +4,32 @@
     
 <mapper namespace="com.ssafy.trip.model.mapper.UserMapper">
 
+    <resultMap type="User" id="getUserDetail">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="password" property="password"/>
+        <result column="email" property="email"/>
+        <result column="file_url" property="userProfileImage"/>
+    </resultMap>
+    
+    <resultMap type="UserSearchResponseDto" id="getUserSearchResponseDto">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="password" property="password"/>
+        <result column="email" property="email"/>
+        <result column="file_url" property="userProfileImage"/>
+    </resultMap>
+    
 	<select id="login" parameterType="user" resultType="user">
 		select id, password, name, email
 		from user 
 		where id=#{id} and password=#{password}
 	</select>
 	
-	<select id="SearchbyID" parameterType="string" resultType="user">
-		select id, password, name, email
-		from user 
+	<select id="SearchbyID" parameterType="string" resultMap="getUserDetail">
+		select u.id, u.name, u.password, u.email, f.file_url
+		from user u LEFT JOIN user_img_file f
+		ON u.id = f.user_id
 		where id = #{id}
 	</select>
 	
@@ -20,6 +37,12 @@
 		select id, password, name, email
 		from user 
 		where name=#{name}
+	</select>
+	
+	<select id="findPassword" parameterType="string" resultType="com.ssafy.trip.dto.User">
+		select name, id, email
+		from user 
+		where id = #{userId}
 	</select>
 	
 	<!-- 등록 -->
@@ -54,9 +77,25 @@
 	</select>
 	
 		<!-- 친구 찾기 -->
-	<select id="friendSearch" parameterType="hashMap" resultType="com.ssafy.trip.dto.user.UserSearchResponseDto">
-		select name, id, email
-		from user u
-		where id like concat(#{searchWord}, '%')
+	<select id="friendSearch" parameterType="hashMap" resultMap="getUserSearchResponseDto">
+		select u.id, u.name, u.password, u.email, f.file_url
+		from user u LEFT JOIN user_img_file f
+		ON u.id = f.user_id
+		where u.id like concat(#{searchWord}, '%')
+	</select>
+
+	<insert id="userImgFileInsert" parameterType="com.ssafy.trip.dto.user.UserImgFileDto">
+		insert into user_img_file ( user_id, file_name, file_size, file_content_type, file_url, register_time )
+		            values ( #{userId}, #{fileName}, #{fileSize}, #{fileContentType}, #{fileUrl}, now() )
+	</insert>
+	
+	<delete id="userImgFileDelete" parameterType="String">
+		delete from user_img_file where user_id = #{userId}
+	</delete>
+	
+	<select id="userDetailFile" parameterType="String" resultType="com.ssafy.trip.dto.user.UserImgFileDto">
+		select file_url
+		from user_img_file
+		where user_id = #{userId}
 	</select>
 </mapper>

@@ -8,6 +8,7 @@
 		<result column="name" property="name"/>
 		<result column="id" property="id"/>
 		<result column="email" property="email"/>
+		<result column="file_url" property="userProfileImage"/>
 	</resultMap>
 	
 	<resultMap type="FriendFollowingResponseDto" id="FriendFollowing">
@@ -15,6 +16,7 @@
 		<result column="name" property="name"/>
 		<result column="id" property="id"/>
 		<result column="email" property="email"/>
+		<result column="file_url" property="userProfileImage"/>
 	</resultMap>
 	
 	<!-- 팔로우 : 내가 친구 요청(추가) -->
@@ -32,9 +34,11 @@
 	
 	<!-- 팔로워 : 나를 친구로 등록한 사람들 조회 -->
 	<select id="friendFollower" parameterType="string" resultMap="FriendFollower">
-		SELECT from_id, name, u.id, email
-		FROM user u, friend f
-		WHERE f.from_id=u.id AND f.to_id=#{toId};
+		SELECT f.from_id, uf.name, uf.id, uf.email, uf.file_url
+		FROM (SELECT u.id, u.name, u.email, f.file_url
+		from user u LEFT JOIN user_img_file f
+		ON u.id = f.user_id) uf, friend f
+		WHERE f.from_id=uf.id AND f.to_id=#{toId};
 	</select>
 	
 	<!-- 팔로워 : 나를 친구로 등록한 사람들 수 -->
@@ -46,9 +50,11 @@
 	
 	<!-- 팔로잉 : 내가 친구로 등록한 사람들 조회 -->
 	<select id="friendFollowing" parameterType="string" resultMap="FriendFollowing">
-		SELECT to_id, name, u.id, email
-		FROM user u, friend f
-		WHERE f.from_id=#{fromId} AND f.to_id=u.id;
+		SELECT f.from_id, uf.name, uf.id, uf.email, uf.file_url
+		FROM (SELECT u.id, u.name, u.email, f.file_url
+		from user u LEFT JOIN user_img_file f
+		ON u.id = f.user_id) uf, friend f
+		WHERE f.from_id=#{fromId} AND f.to_id=uf.id;
 	</select>
 	
 	<!-- 팔로잉 : 내가 친구로 등록한 사람들 수 -->

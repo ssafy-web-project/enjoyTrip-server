@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Mapper;
 import com.ssafy.trip.dto.User;
 import com.ssafy.trip.dto.friend.FriendFollowingResponseDto;
 import com.ssafy.trip.dto.user.UserIdCheckDto;
+import com.ssafy.trip.dto.user.UserImgFileDto;
 import com.ssafy.trip.dto.user.UserSearchResponseDto;
 
 @Mapper
@@ -33,4 +34,12 @@ public interface UserMapper {
 	public abstract int updateUser(User user);
 
 	public abstract int updatePassword(User user);
+
+	public abstract User findPassword(String userId);
+
+	public abstract void userImgFileDelete(String userId);
+
+	public abstract void userImgFileInsert(UserImgFileDto userFileDto);
+
+	public abstract String userDetailFile(String userId);
 }
